@@ -7,6 +7,7 @@ from datetime import datetime, date
 from git import Repo, log
 import subprocess
 import json
+import shutil
 from tqdm import tqdm
 
 # Function for getting the urls
@@ -138,9 +139,11 @@ for repo in opendev_repositories:
             if year == last_commit_date.year and month == last_commit_date.month:
                 break
         if not flag:
+            # Delete the folder and break
+            shutil.rmtree('../replication/repositories/Mirantis/%s'%repo.split('/')[-1])
+            print('%s has been removed! '%repo.split('/')[-1])
             break
     if flag:
         valid_repos.append(repo.split('/')[-1])
-        
+        print('%s has been appended! '%repo.split('/')[-1])
 print(len(valid_repos))
-exit()
