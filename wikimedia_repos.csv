@@ -1,0 +1,12 @@
+Repo_url,Puppet_percentage
+https://github.com/wikimedia/operations-puppet,0.33845075178575607
+https://github.com/wikimedia/translatewiki,0.15005608346119362
+https://github.com/wikimedia/mediawiki-vagrant,0.2898911742680606
+https://github.com/wikimedia/labs-icinga2,0.19939907472593785
+https://github.com/wikimedia/operations-puppet-wikimetrics,0.6201156511756453
+https://github.com/wikimedia/operations-puppet-kafka,0.8128182985695939
+https://github.com/wikimedia/operations-puppet-cdh4,0.5525778468757738
+https://github.com/wikimedia/operations-puppet-cassandra,0.20635528917638762
+https://github.com/wikimedia/analytics-vagrant-kraken,0.7420718816067653
+https://github.com/wikimedia/analytics-vagrant-build,0.7630717546730985
+https://github.com/wikimedia/labs-maps,0.41741193648476
