@@ -9,14 +9,6 @@ import json
 from tqdm import tqdm
 import zipfile
 import shutil
-import time
-from http.client import IncompleteRead
-import logging
-logging.basicConfig(
-    filename='mozilla_logging.log',
-    level=logging.DEBUG,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
 
 # Function for getting the urls
 def get_link(current_page, base_url):
@@ -52,7 +44,7 @@ def get_pp_file_size(folder_path):
     return total_size
 
 base_url = 'https://hg.mozilla.org/'
-mozilla_path = '../mozilla_repos.txt'
+mozilla_path = '../replication/mozilla_repos.txt'
 mozilla_repositories = []
 
 # Get the repository layout
@@ -69,56 +61,36 @@ if not os.path.exists(mozilla_path):
             current_url = base_url
         else:
             current_url = base_url+mercurial+'/'
-        logging.info('Scraping page %s, please be patient...'%mercurial)
         r = requests.get(current_url)
         soup = BeautifulSoup(r.text, 'html.parser')
         tables = soup.findAll('table')
         repositories = [current_url+t.text.strip() for t in tables[0].findAll('b')]
         mozilla_repositories.extend(repositories)
-        # Sleep for a while
-        time.sleep(3)
-        logging.info("Sleep for a while so that they can't see me")
     with open(r'%s'%mozilla_path, 'w') as fp:
         fp.write('\n'.join(mozilla_repositories))
 # Else we load from file directly
 else:
     with open(r'%s'%mozilla_path, 'r') as fp:
-        logging.info("Nice, we have all the repositories!")
         for line in fp:
             mozilla_repositories.append(line.strip())
             
 # Iterate through all the repositories
-# sleep for a while after 10 repos checked
-count = 1
-flag = False
 for repo in mozilla_repositories:
-    print(repo.split('/')[-1])
-    if repo.split('/')[-1] == 'mozilla-esr68':
-        flag = True
-        continue
-    if flag == False:
-        continue
     # Download the repository
     file_url = repo+"/archive/tip.zip"
-    try:
-        response = requests.get(file_url)
-    except IncompleteRead:
-        # Oh well, reconnect and keep trucking
-        continue
+    response = requests.get(file_url)
     # This is a temporary path for the zip file
-    temp_zip = "../repositories/Mozilla/%s/tip.zip"%(repo.split('/')[-2])
+    temp_zip = "../replication/repositories/Mozilla/tip.zip"
     # Folder for saving
-    extracted_dir = "../repositories/Mozilla/%s/"%(repo.split('/')[-2])
-    # Check the folder
-    if not os.path.exists(extracted_dir):
-        os.mkdir(extracted_dir)
+    extracted_dir = "../replication/repositories/Mozilla/"
+
     # Check if the request was successful (status code 200)
     if response.status_code == 200:
         # Open the local file in binary write mode and write the response content to it
         with open(temp_zip, "wb") as local_file:
             local_file.write(response.content)
     else:
-        logging.warning(f"Failed to download file. Status code: {response.status_code}")
+        print(f"Failed to download file. Status code: {response.status_code}")
 
     # Open the ZIP file for reading
     with zipfile.ZipFile(temp_zip, "r") as zip_ref:
@@ -142,11 +114,7 @@ for repo in mozilla_repositories:
     # Delete the folder if the portion is less than 0.11
     if portion < 0.11:
         shutil.rmtree(extracted_dir+new_name)
-        logging.info("%s deleted"%new_name)
+        print("%s deleted"%new_name)
     else:
-        logging.info("%s saved"%new_name)
-    if count % 10 == 0:
-        time.sleep(3)
-        logging.info('Sorry, need some rest')
-    count += 1
+        print("%s saved"%new_name)
     
